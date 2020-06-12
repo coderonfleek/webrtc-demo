@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <title>Web Video Chat</title>
+  </head>
+  <body>
+    <video autoplay width="400" height="400"></video>
+  </body>
+
+  <script>
+    //Socket.io
+    let io_connection = io.connect("http://localhost:3000");
+    io_connection.emit("ready", "chat");
+
+    io_connection.on("announce", (msg) => {
+      console.log(msg);
+    });
+    //Camera Feed
+    let constraints = { audio: false, video: true };
+
+    let videoArea = document.querySelector("video");
+
+    function onSuccess(stream) {
+      console.log("We got stream", stream);
+
+      const videoTracks = stream.getVideoTracks();
+      console.log(`Using video device: ${videoTracks[0].label}`);
+
+      window.stream = stream; // make variable available to browser console
+      videoArea.srcObject = stream;
+    }
+
+    function onError(error) {
+      console.log("Error, something went wrong", error);
+    }
+
+    const initialize = () => {
+      navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then(onSuccess)
+        .catch(onError);
+    };
+
+    initialize();
+  </script>
+</html>
